@@ -14,15 +14,13 @@ var HEADERS = map[string]string{
 	"Content-Type": "application/x-www-form-urlencoded",
 	"User-Agent":   "AuthGGo - smartass08"}
 
-/*
-type LicencesAll struct {
+/*type LicencesAll struct {
 	Token  string `json:"token"`
 	Rank   string `json:"rank"`
 	Used   string `json:"used"`
 	UsedBy string `json:"used_by"`
 	Days   string `json:"days"`
-}
-*/
+}*/
 
 type Administration struct {
 	apiKey     string
