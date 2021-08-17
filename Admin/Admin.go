@@ -55,8 +55,8 @@ func (rc *Administration) Init(hash string) error {
 }
 
 // fetchOne - Common method for various similar stuff
-func (rc Administration) fetchOne(userName string, which string) (map[string]interface{}, error) {
-	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/%v?type=fetch&authorization=%v&user=%v", rc.apiUrl, which, rc.apiKey, userName), nil)
+func (rc Administration) fetchOne(userName string, who string, which string ) (map[string]interface{}, error) {
+	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/%v?type=fetch&authorization=%v&%v=%v", rc.apiUrl, who, rc.apiKey,which, userName), nil)
 	r.Header = http.Header{
 		"Content-Type": []string{"application/x-www-form-urlencoded"},
 		"User-Agent":   []string{"AuthGGo - smartass08"},
@@ -233,11 +233,11 @@ func (rc Administration) FetchLicenseCount() (int, error) {
 }
 
 func (rc Administration) FetchUserInfo(username string) (map[string]interface{}, error) {
-	return rc.fetchOne(username, "USERS")
+	return rc.fetchOne(username, "USERS", "user")
 }
 
 func (rc Administration) FetchLicenseInfo(license string) (map[string]interface{}, error) {
-	return rc.fetchOne(license, "LICENSES")
+	return rc.fetchOne(license, "LICENSES", "license")
 }
 
 func (rc Administration) DeleteKey(licenseKey string) (map[string]interface{}, error) {
