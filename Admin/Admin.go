@@ -28,30 +28,30 @@ type Administration struct {
 	apiHeaders string
 }
 
-func (rc *Administration) Init(hash string) string {
+func (rc *Administration) Init(hash string) error {
 	rc.apiUrl = "https://developers.auth.gg"
 	rc.apiKey = hash
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/USERS?type=count&authorization=%v", rc.apiUrl, rc.apiKey), nil)
 	client := &http.Client{}
 	_, err := client.Do(r)
 	if err != nil {
-		return fmt.Sprintf("Error while making http client : %v" , err)
+		return err
 	}
 	res, err := client.Do(r)
 	defer res.Body.Close()
 	if err != nil {
-		return fmt.Sprintf("Error while creating http request : %v", err)
+		return err
 	}
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Println(err)
-		return fmt.Sprintf("Error while reading http responseData : %v", err)
+		return err
 	}
 	if strings.Contains(string(responseData), "failed") == true && strings.Contains(string(responseData), "No application found") == true {
 		log.Println(string(responseData))
-		return fmt.Sprintf("Error : %v", err)
+		return err
 	}
-	return ""
+	return nil
 }
 
 // fetchOne - Common method for various similar stuff
