@@ -209,7 +209,7 @@ func (rc *Administration) FetchAllUsedLicenses(user string) ([]string, error) {
 	}
 	for _, v := range  allLicenses {
 		moreUselessData := v.(map[string]interface{})
-		if moreUselessData["used"] == "1" && strings.Contains(moreUselessData["used_by"].(string), user) == true {
+		if moreUselessData["used"] == "1" && moreUselessData["used_by"].(string) == user {
 			allUselessData = append(allUselessData, moreUselessData["token"].(string))
 		}
 	}
