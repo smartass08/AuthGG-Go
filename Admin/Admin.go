@@ -132,6 +132,10 @@ func (rc Administration) fetchCount(which string) (int, error) {
 // GenerateLicense :- License generator - Max 9998 days
 func (rc Administration) GenerateLicense(amount int, days int, prefix string) (map[string]interface{}, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/LICENSES?type=generate&&authorization=%v&amount=%v&days=%v&level=1&format=3&prefix=%v&length=0", rc.apiUrl, rc.apiKey, amount, days, prefix), nil)
+	r.Header = http.Header{
+		"Content-Type": []string{"application/x-www-form-urlencoded"},
+		"User-Agent":   []string{"AuthGGo - smartass08"},
+	}
 	client := &http.Client{}
 	res, err := client.Do(r)
 	defer res.Body.Close()
@@ -151,6 +155,10 @@ func (rc Administration) GenerateLicense(amount int, days int, prefix string) (m
 }
 func (rc Administration) changeLicense(license string, which string) (map[string]interface{}, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/LICENSES?type=%v&authorization=%v&license=%v", rc.apiUrl, which, rc.apiKey, license), nil)
+	r.Header = http.Header{
+		"Content-Type": []string{"application/x-www-form-urlencoded"},
+		"User-Agent":   []string{"AuthGGo - smartass08"},
+	}
 	client := &http.Client{}
 	res, err := client.Do(r)
 	defer res.Body.Close()
@@ -170,6 +178,10 @@ func (rc Administration) changeLicense(license string, which string) (map[string
 }
 func (rc Administration) updateHwid(license string, which string, which2 string) (map[string]interface{}, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/HWID?type=%v&authorization=%v&%s=%v", rc.apiUrl, which, rc.apiKey, which2, license), nil)
+	r.Header = http.Header{
+		"Content-Type": []string{"application/x-www-form-urlencoded"},
+		"User-Agent":   []string{"AuthGGo - smartass08"},
+	}
 	client := &http.Client{}
 	res, err := client.Do(r)
 	defer res.Body.Close()
