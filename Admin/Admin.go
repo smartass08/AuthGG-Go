@@ -28,36 +28,34 @@ type Administration struct {
 	apiHeaders string
 }
 
-func (rc *Administration) Init(hash string) bool {
+func (rc *Administration) Init(hash string) string {
 	rc.apiUrl = "https://developers.auth.gg"
 	rc.apiKey = hash
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/USERS?type=count&authorization=%v", rc.apiUrl, rc.apiKey), nil)
 	client := &http.Client{}
-	_, e := client.Do(r)
-	if e != nil {
-		log.Println(e.Error())
-		return false
+	_, err := client.Do(r)
+	if err != nil {
+		return fmt.Sprintf("Error while making http client : %v" , err)
 	}
 	res, err := client.Do(r)
 	defer res.Body.Close()
 	if err != nil {
-		log.Println(err.Error())
-		return false
+		return fmt.Sprintf("Error while creating http request : %v", err)
 	}
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Println(err)
-		return false
+		return fmt.Sprintf("Error while reading http responseData : %v", err)
 	}
 	if strings.Contains(string(responseData), "failed") == true && strings.Contains(string(responseData), "No application found") == true {
 		log.Println(string(responseData))
-		return false
+		return fmt.Sprintf("Error : %v", err)
 	}
-	return true
+	return ""
 }
 
 // fetchOne - Common method for various similar stuff
-func (rc Administration) fetchOne(userName string, which string) map[string]interface{} {
+func (rc Administration) fetchOne(userName string, which string) (map[string]interface{}, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/%v?type=fetch&authorization=%v&user=%v", rc.apiUrl, which, rc.apiKey, userName), nil)
 	r.Header = http.Header{
 		"Content-Type": []string{"application/x-www-form-urlencoded"},
@@ -67,49 +65,43 @@ func (rc Administration) fetchOne(userName string, which string) map[string]inte
 	res, err := client.Do(r)
 	defer res.Body.Close()
 	if err != nil {
-		log.Println(err.Error())
+		return nil, err
 	}
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 	var v interface{}
 	err = json.Unmarshal(responseData, &v)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	if err != nil {
-		return nil
-	}
-	return v.(map[string]interface{})
+	return v.(map[string]interface{}), nil
 }
 
 // fetchAll - common method for fetching group of stuff
-func (rc *Administration) fetchAll(which string) map[string]interface{} {
+func (rc *Administration) fetchAll(which string) (map[string]interface{}, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/%v?type=fetchall&authorization=%v", rc.apiUrl, which, rc.apiKey), nil)
 	client := &http.Client{}
 	res, err := client.Do(r)
 	defer res.Body.Close()
 	if err != nil {
-		log.Println(err.Error())
+		return nil, err
 	}
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 	var v interface{}
 	err = json.Unmarshal(responseData, &v)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	if err != nil {
-		return nil
-	}
-	return v.(map[string]interface{})
+	return v.(map[string]interface{}) , nil
 }
 
 // fetchCount -  Common method for grabbing all count
-func (rc Administration) fetchCount(which string) int {
+func (rc Administration) fetchCount(which string) (int, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/%v?type=count&authorization=%v", rc.apiUrl, which, rc.apiKey), nil)
 	r.Header = http.Header{
 		"Content-Type": []string{"application/x-www-form-urlencoded"},
@@ -119,150 +111,139 @@ func (rc Administration) fetchCount(which string) int {
 	res, err := client.Do(r)
 	defer res.Body.Close()
 	if err != nil {
-		log.Println(err.Error())
+		return 0, err
 	}
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Println(err)
+		return 0, err
 	}
 	var v interface{}
 	err = json.Unmarshal(responseData, &v)
 	if err != nil {
-		return 0
-	}
-	if err != nil {
-		return 0
+		return 0, err
 	}
 	val, err := strconv.Atoi(v.(map[string]interface{})["value"].(string))
 	if err != nil {
-		log.Println(err.Error())
-		return 0
+		return 0, err
 	}
-	return val
+	return val, nil
 }
 
 // GenerateLicense :- License generator - Max 9998 days
-func (rc Administration) GenerateLicense(amount int, days int, prefix string) map[string]interface{} {
+func (rc Administration) GenerateLicense(amount int, days int, prefix string) (map[string]interface{}, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/LICENSES?type=generate&&authorization=%v&amount=%v&days=%v&level=1&format=3&prefix=%v&length=0", rc.apiUrl, rc.apiKey, amount, days, prefix), nil)
 	client := &http.Client{}
 	res, err := client.Do(r)
 	defer res.Body.Close()
 	if err != nil {
-		log.Println(err.Error())
+		return nil, err
 	}
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 	var v interface{}
 	err = json.Unmarshal(responseData, &v)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	if err != nil {
-		return nil
-	}
-	return v.(map[string]interface{})
+	return v.(map[string]interface{}), nil
 }
-func (rc Administration) changeLicense(license string, which string) map[string]interface{} {
+func (rc Administration) changeLicense(license string, which string) (map[string]interface{}, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/LICENSES?type=%v&authorization=%v&license=%v", rc.apiUrl, which, rc.apiKey, license), nil)
 	client := &http.Client{}
 	res, err := client.Do(r)
 	defer res.Body.Close()
 	if err != nil {
-		log.Println(err.Error())
-		return nil
+		return nil, err
 	}
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 	var v interface{}
 	err = json.Unmarshal(responseData, &v)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	if err != nil {
-		return nil
-	}
-	return v.(map[string]interface{})
+	return v.(map[string]interface{}), nil
 }
-func (rc Administration) updateHwid(license string, which string, which2 string) map[string]interface{} {
+func (rc Administration) updateHwid(license string, which string, which2 string) (map[string]interface{}, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/HWID?type=%v&authorization=%v&%s=%v", rc.apiUrl, which, rc.apiKey, which2, license), nil)
 	client := &http.Client{}
 	res, err := client.Do(r)
 	defer res.Body.Close()
 	if err != nil {
 		log.Println(err.Error())
-		return nil
+		return nil, err
 	}
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 	var v interface{}
 	err = json.Unmarshal(responseData, &v)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	if err != nil {
-		return nil
-	}
-	return v.(map[string]interface{})
+	return v.(map[string]interface{}), nil
 }
 
-func (rc *Administration) FetchAllUsedLicenses(user string) []string {
+func (rc *Administration) FetchAllUsedLicenses(user string) ([]string, error) {
 	var allUselessData []string
-	uselessData := rc.FetchAllLicenseInfo()
-	for _, v := range uselessData {
+	allLicenses, err:= rc.FetchAllLicenseInfo()
+	if err != nil {
+		return allUselessData, err
+	}
+	for _, v := range  allLicenses {
 		moreUselessData := v.(map[string]interface{})
 		if moreUselessData["used"] == "1" && strings.Contains(moreUselessData["used_by"].(string), user) == true {
 			allUselessData = append(allUselessData, moreUselessData["token"].(string))
 		}
 	}
-	return allUselessData
+	return allUselessData, nil
 }
 
-func (rc *Administration) FetchAllUserInfo() map[string]interface{} {
+func (rc *Administration) FetchAllUserInfo() (map[string]interface{}, error) {
 	return rc.fetchAll("USERS")
 }
 
-func (rc *Administration) FetchAllLicenseInfo() map[string]interface{} {
+func (rc *Administration) FetchAllLicenseInfo() (map[string]interface{}, error) {
 	return rc.fetchAll("LICENSES")
 }
 
-func (rc Administration) FetchUserCount() int {
+func (rc Administration) FetchUserCount() (int, error) {
 	return rc.fetchCount("USERS")
 }
 
-func (rc Administration) FetchLicenseCount() int {
+func (rc Administration) FetchLicenseCount() (int, error) {
 	return rc.fetchCount("LICENSES")
 }
 
-func (rc Administration) FetchUserInfo(username string) map[string]interface{} {
+func (rc Administration) FetchUserInfo(username string) (map[string]interface{}, error) {
 	return rc.fetchOne(username, "USERS")
 }
 
-func (rc Administration) FetchLicenseInfo(license string) map[string]interface{} {
+func (rc Administration) FetchLicenseInfo(license string) (map[string]interface{}, error) {
 	return rc.fetchOne(license, "LICENSES")
 }
 
-func (rc Administration) DeleteKey(licenseKey string) map[string]interface{} {
+func (rc Administration) DeleteKey(licenseKey string) (map[string]interface{}, error) {
 	return rc.changeLicense(licenseKey, "delete")
 }
 
-func (rc Administration) UseKey(licenseKey string) map[string]interface{} {
+func (rc Administration) UseKey(licenseKey string) (map[string]interface{}, error) {
 	return rc.changeLicense(licenseKey, "use")
 }
 
-func (rc Administration) UnUseKey(licenseKey string) map[string]interface{} {
+func (rc Administration) UnUseKey(licenseKey string) (map[string]interface{}, error) {
 	return rc.changeLicense(licenseKey, "unuse")
 }
 
-func (rc Administration) FetchHwid(username string) map[string]interface{} {
+func (rc Administration) FetchHwid(username string) (map[string]interface{}, error) {
 	return rc.updateHwid(username, "fetch", "user")
 }
 
-func (rc Administration) ResetHwid(username string) map[string]interface{} {
+func (rc Administration) ResetHwid(username string) (map[string]interface{}, error) {
 	return rc.updateHwid(username, "reset", "user")
 }
