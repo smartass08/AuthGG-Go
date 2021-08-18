@@ -131,7 +131,7 @@ func (rc Administration) fetchCount(which string) (int, error) {
 
 // GenerateLicense :- License generator - Max 9998 days
 func (rc Administration) GenerateLicense(amount int, days int, prefix string) (map[string]interface{}, error) {
-	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/LICENSES?type=generate&&authorization=%v&amount=%v&days=%v&level=1&format=3&prefix=%v&length=0", rc.apiUrl, rc.apiKey, amount, days, prefix), nil)
+	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/LICENSES?type=generate&&authorization=%v&amount=%v&days=%v&level=0&format=3&prefix=%v&length=0", rc.apiUrl, rc.apiKey, amount, days, prefix), nil)
 	r.Header = http.Header{
 		"Content-Type": []string{"application/x-www-form-urlencoded"},
 		"User-Agent":   []string{"AuthGGo - smartass08"},
