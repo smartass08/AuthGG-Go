@@ -38,10 +38,10 @@ func (rc *Administration) Init(hash string) error {
 		return err
 	}
 	res, err := client.Do(r)
-	defer res.Body.Close()
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Println(err)
@@ -63,10 +63,10 @@ func (rc Administration) fetchOne(userName string, who string, which string ) (m
 	}
 	client := &http.Client{}
 	res, err := client.Do(r)
-	defer res.Body.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -84,10 +84,10 @@ func (rc *Administration) fetchAll(which string) (map[string]interface{}, error)
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/%v?type=fetchall&authorization=%v", rc.apiUrl, which, rc.apiKey), nil)
 	client := &http.Client{}
 	res, err := client.Do(r)
-	defer res.Body.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -109,10 +109,10 @@ func (rc Administration) fetchCount(which string) (int, error) {
 	}
 	client := &http.Client{}
 	res, err := client.Do(r)
-	defer res.Body.Close()
 	if err != nil {
 		return 0, err
 	}
+	defer res.Body.Close()
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return 0, err
@@ -138,10 +138,10 @@ func (rc Administration) GenerateLicense(amount int, days int, prefix string) (m
 	}
 	client := &http.Client{}
 	res, err := client.Do(r)
-	defer res.Body.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -161,10 +161,10 @@ func (rc Administration) changeLicense(license string, which string) (map[string
 	}
 	client := &http.Client{}
 	res, err := client.Do(r)
-	defer res.Body.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -184,11 +184,11 @@ func (rc Administration) updateHwid(license string, which string, which2 string)
 	}
 	client := &http.Client{}
 	res, err := client.Do(r)
-	defer res.Body.Close()
 	if err != nil {
 		log.Println(err.Error())
 		return nil, err
 	}
+	defer res.Body.Close()
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
