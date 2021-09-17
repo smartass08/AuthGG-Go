@@ -33,10 +33,6 @@ func (rc *Administration) Init(hash string) error {
 	rc.apiKey = hash
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/USERS?type=count&authorization=%v", rc.apiUrl, rc.apiKey), nil)
 	client := &http.Client{}
-	_, err := client.Do(r)
-	if err != nil {
-		return err
-	}
 	res, err := client.Do(r)
 	if err != nil {
 		return err
