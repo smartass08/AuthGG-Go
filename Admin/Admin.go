@@ -3,6 +3,7 @@ package Admin
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -37,8 +38,12 @@ func (rc *Administration) Init(hash string) error {
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
-	responseData, err := ioutil.ReadAll(res.Body)
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+		}
+	}(res.Body)
+	responseData, err := io.ReadAll(res.Body)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -51,8 +56,8 @@ func (rc *Administration) Init(hash string) error {
 }
 
 // fetchOne - Common method for various similar stuff
-func (rc Administration) fetchOne(userName string, who string, which string ) (map[string]interface{}, error) {
-	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/%v?type=fetch&authorization=%v&%v=%v", rc.apiUrl, who, rc.apiKey,which, userName), nil)
+func (rc *Administration) fetchOne(userName string, who string, which string) (map[string]interface{}, error) {
+	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/%v?type=fetch&authorization=%v&%v=%v", rc.apiUrl, who, rc.apiKey, which, userName), nil)
 	r.Header = http.Header{
 		"Content-Type": []string{"application/x-www-form-urlencoded"},
 		"User-Agent":   []string{"AuthGGo - smartass08"},
@@ -62,7 +67,11 @@ func (rc Administration) fetchOne(userName string, who string, which string ) (m
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+		}
+	}(res.Body)
 	responseData, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
@@ -83,8 +92,12 @@ func (rc *Administration) fetchAll(which string) (map[string]interface{}, error)
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
-	responseData, err := ioutil.ReadAll(res.Body)
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+		}
+	}(res.Body)
+	responseData, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -93,11 +106,11 @@ func (rc *Administration) fetchAll(which string) (map[string]interface{}, error)
 	if err != nil {
 		return nil, err
 	}
-	return v.(map[string]interface{}) , nil
+	return v.(map[string]interface{}), nil
 }
 
 // fetchCount -  Common method for grabbing all count
-func (rc Administration) fetchCount(which string) (int, error) {
+func (rc *Administration) fetchCount(which string) (int, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/%v?type=count&authorization=%v", rc.apiUrl, which, rc.apiKey), nil)
 	r.Header = http.Header{
 		"Content-Type": []string{"application/x-www-form-urlencoded"},
@@ -108,8 +121,12 @@ func (rc Administration) fetchCount(which string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer res.Body.Close()
-	responseData, err := ioutil.ReadAll(res.Body)
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+		}
+	}(res.Body)
+	responseData, err := io.ReadAll(res.Body)
 	if err != nil {
 		return 0, err
 	}
@@ -126,7 +143,7 @@ func (rc Administration) fetchCount(which string) (int, error) {
 }
 
 // GenerateLicense :- License generator - Max 9998 days
-func (rc Administration) GenerateLicense(amount int, days int, prefix string) (map[string]interface{}, error) {
+func (rc *Administration) GenerateLicense(amount int, days int, prefix string) (map[string]interface{}, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/LICENSES?type=generate&&authorization=%v&amount=%v&days=%v&level=00&format=3&prefix=%v&length=0", rc.apiUrl, rc.apiKey, amount, days, prefix), nil)
 	r.Header = http.Header{
 		"Content-Type": []string{"application/x-www-form-urlencoded"},
@@ -137,8 +154,13 @@ func (rc Administration) GenerateLicense(amount int, days int, prefix string) (m
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
-	responseData, err := ioutil.ReadAll(res.Body)
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(res.Body)
+	responseData, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +171,7 @@ func (rc Administration) GenerateLicense(amount int, days int, prefix string) (m
 	}
 	return v.(map[string]interface{}), nil
 }
-func (rc Administration) changeLicense(license string, which string) (map[string]interface{}, error) {
+func (rc *Administration) changeLicense(license string, which string) (map[string]interface{}, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/LICENSES?type=%v&authorization=%v&license=%v", rc.apiUrl, which, rc.apiKey, license), nil)
 	r.Header = http.Header{
 		"Content-Type": []string{"application/x-www-form-urlencoded"},
@@ -160,8 +182,13 @@ func (rc Administration) changeLicense(license string, which string) (map[string
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
-	responseData, err := ioutil.ReadAll(res.Body)
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(res.Body)
+	responseData, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +199,7 @@ func (rc Administration) changeLicense(license string, which string) (map[string
 	}
 	return v.(map[string]interface{}), nil
 }
-func (rc Administration) updateHwid(license string, which string, which2 string) (map[string]interface{}, error) {
+func (rc *Administration) updateHwid(license string, which string, which2 string) (map[string]interface{}, error) {
 	r, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/HWID?type=%v&authorization=%v&%s=%v", rc.apiUrl, which, rc.apiKey, which2, license), nil)
 	r.Header = http.Header{
 		"Content-Type": []string{"application/x-www-form-urlencoded"},
@@ -184,8 +211,12 @@ func (rc Administration) updateHwid(license string, which string, which2 string)
 		log.Println(err.Error())
 		return nil, err
 	}
-	defer res.Body.Close()
-	responseData, err := ioutil.ReadAll(res.Body)
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+		}
+	}(res.Body)
+	responseData, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -199,11 +230,11 @@ func (rc Administration) updateHwid(license string, which string, which2 string)
 
 func (rc *Administration) FetchAllUsedLicenses(user string) ([]string, error) {
 	var allUselessData []string
-	allLicenses, err:= rc.FetchAllLicenseInfo()
+	allLicenses, err := rc.FetchAllLicenseInfo()
 	if err != nil {
 		return allUselessData, err
 	}
-	for _, v := range  allLicenses {
+	for _, v := range allLicenses {
 		moreUselessData := v.(map[string]interface{})
 		if moreUselessData["used"] == "1" && moreUselessData["used_by"].(string) == user {
 			allUselessData = append(allUselessData, moreUselessData["token"].(string))
@@ -220,38 +251,38 @@ func (rc *Administration) FetchAllLicenseInfo() (map[string]interface{}, error) 
 	return rc.fetchAll("LICENSES")
 }
 
-func (rc Administration) FetchUserCount() (int, error) {
+func (rc *Administration) FetchUserCount() (int, error) {
 	return rc.fetchCount("USERS")
 }
 
-func (rc Administration) FetchLicenseCount() (int, error) {
+func (rc *Administration) FetchLicenseCount() (int, error) {
 	return rc.fetchCount("LICENSES")
 }
 
-func (rc Administration) FetchUserInfo(username string) (map[string]interface{}, error) {
+func (rc *Administration) FetchUserInfo(username string) (map[string]interface{}, error) {
 	return rc.fetchOne(username, "USERS", "user")
 }
 
-func (rc Administration) FetchLicenseInfo(license string) (map[string]interface{}, error) {
+func (rc *Administration) FetchLicenseInfo(license string) (map[string]interface{}, error) {
 	return rc.fetchOne(license, "LICENSES", "license")
 }
 
-func (rc Administration) DeleteKey(licenseKey string) (map[string]interface{}, error) {
+func (rc *Administration) DeleteKey(licenseKey string) (map[string]interface{}, error) {
 	return rc.changeLicense(licenseKey, "delete")
 }
 
-func (rc Administration) UseKey(licenseKey string) (map[string]interface{}, error) {
+func (rc *Administration) UseKey(licenseKey string) (map[string]interface{}, error) {
 	return rc.changeLicense(licenseKey, "use")
 }
 
-func (rc Administration) UnUseKey(licenseKey string) (map[string]interface{}, error) {
+func (rc *Administration) UnUseKey(licenseKey string) (map[string]interface{}, error) {
 	return rc.changeLicense(licenseKey, "unuse")
 }
 
-func (rc Administration) FetchHwid(username string) (map[string]interface{}, error) {
+func (rc *Administration) FetchHwid(username string) (map[string]interface{}, error) {
 	return rc.updateHwid(username, "fetch", "user")
 }
 
-func (rc Administration) ResetHwid(username string) (map[string]interface{}, error) {
+func (rc *Administration) ResetHwid(username string) (map[string]interface{}, error) {
 	return rc.updateHwid(username, "reset", "user")
 }
